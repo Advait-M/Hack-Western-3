@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import Tk, Entry, END
-
-import math
+# name , start time , end time, id
+apptO = []
 
 
 class calender():
@@ -19,23 +19,21 @@ class calender():
             y += 50
 
     def start(self, st):
-        minutes = int(st[(st.find(":") + 1):])
-        hour = int(st[:st.find(":")])
+        ind =elementFind(st)
+        minutes = int(apptO[ind][1][apptO[ind][1].find(":")+1:])
+        hour = int(apptO[ind][1][:apptO[ind][1].find(":")])
         minutes /= 60
         return hour + minutes
 
-    def add_appt(self, startTime, endTime, name, description):
-        self.ST = startTime
-        self.ET = endTime
-        self.name = name
-        y1 = 50 * (calender.start(self, startTime) - 7) + 10
-        y2 = 50 * (calender.start(self, endTime) - 7) + 10
+    def add_appt(self, startTime, endTime, name, location):
+        bu = Button(text=name, font="Times 10", relief="groove", bg="lightblue",command=lambda: edit(name))
+        apptO.append([name, startTime, endTime, bu])
+        y1 = 50 * (calender.start(self, name) - 7) + 10
+        y2 = 50 * (calender.start(self, name) - 7) + 10
         x1 = 5
         x2 = 200
 
-        self.bu = Button(text=name, font="Times 10", relief="groove", bg="lightblue",
-                         command=lambda: edit(c))
-        windowID = self.ID.create_window(x1, y1, window=self.bu, anchor=W, width=x2 - x1, height=50)
+        windowID = self.ID.create_window(x1, y1, window=bu, anchor=W, width=x2 - x1, height=50)
 
 
 def callbackFirst(event):
@@ -53,14 +51,23 @@ def callbackLast(event):
         lastName.config(fg="black")
         clickedLast = True
 
+def elementFind(name,i=0):
+    temp = [item[i] for item in apptO]
+    if name in temp:
+        return temp.index(name)
 
-def edit(calenderOBJ):
+def edit(name):
+    global editFrame
     global clickedFirst, firstName, clickedLast, lastName
-    Startminutes = int(calenderOBJ.ST[(calenderOBJ.ST.find(":") + 1):])
-    Starthour = int(calenderOBJ.ST[:calenderOBJ.ST.find(":")])
+    editFrame.destroy()
+    editFrame = Frame(editMainFrame)
+    editFrame.pack()
+    ind = elementFind(name)
+    Startminutes = apptO[ind][1][apptO[ind][1].find(":")+1:].zfill(2)
+    Starthour = apptO[ind][1][:apptO[ind][1].find(":")]
 
-    Endminutes = int(calenderOBJ.ET[(calenderOBJ.ET.find(":") + 1):])
-    Endhour = int(calenderOBJ.ET[:calenderOBJ.ET.find(":")])
+    Endminutes = apptO[ind][2][apptO[ind][2].find(":")+1:].zfill(2)
+    Endhour = apptO[ind][2][:apptO[ind][2].find(":")].zfill(2)
 
     Label(editFrame, text="Name").pack()
     firstName = Entry(editFrame, fg="grey", exportselection=0)
@@ -102,7 +109,7 @@ def edit(calenderOBJ):
     vEm.set(Endminutes)
     optEM.pack(side=LEFT)
     Time2.pack()
-    Button(editFrame, text="submit", command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm)).pack()
+    Button(editFrame, text="submit", command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm, ind)).pack()
 
 
 def formatTime(time):
@@ -113,13 +120,23 @@ def formatTime(time):
     return formattedTime
 
 
-def submitEdit(firstName, lastName, stH, stM, etH, etM):
+def submitEdit(firstName, lastName, stH, stM, etH, etM, ind):
     fn = firstName.get()
     ln = lastName.get()
     startTime = stH.get() + ":" + stM.get()
     endTime = etH.get() + ":" + etM.get()
-    print(fn, ln, startTime, endTime)
+    apptO[ind] = [startTime, endTime, fn+" "+ln]
+    fullUpdate()
 
+
+def fullUpdate():
+    global c
+    c.ID.delete(ALL)
+    for i in apptO:
+        startTime, endTime, name = i[0], i[1], i[2]
+
+
+    c.add_appt(startTime, endTime, name, "None")
 
 root = Tk()
 window = PanedWindow(root, height=650, width=800, orient=HORIZONTAL)
@@ -129,13 +146,16 @@ calenderFrame = Frame(window)
 calenderFrame.pack()
 window.add(calenderFrame)
 
-editFrame = Frame(window)
-editFrame.pack(side=RIGHT)
-window.add(editFrame)
+editMainFrame = Frame(window)
+editMainFrame.pack(side=RIGHT)
+window.add(editMainFrame)
+
+editFrame = Frame(editMainFrame)
 
 c = calender(calenderFrame)
 c.make_grid()
 c.add_appt("9:00", "9:30", "Leon Fattakhov", "superCool")
-c.add_appt("10:00", "11:00", "Advait Fattakhov", "superCool")
-c.add_appt("12:30", "12:45", "Nim Fattakhov", "superCool")
+# c.add_appt("10:00", "11:00", "Advait Fattakhov", "superCool")
+# c.add_appt("12:30", "12:45", "Nim Fattakhov", "superCool")
+
 root.mainloop()
