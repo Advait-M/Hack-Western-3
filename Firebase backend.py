@@ -34,7 +34,7 @@ class WaitNoMore:
             self.db.child(oldFirstName + " " + oldLastName).update({typeOfString : newString})
 
     def getAll(self):
-        all_users = db.child("wait-no-more").get()
+        all_users = self.db.child("wait-no-more").get()
         for user in all_users.each():
             print(user.key())  # Morty
             print(user.val())  # {name": "Mortimer 'Morty' Smith"}
