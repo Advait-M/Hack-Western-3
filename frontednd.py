@@ -24,22 +24,29 @@ class calender():
         return hour + minutes
 
     def add_appt(self, startTime, endTime, name, description):
-        x1 = 90 * (calender.start(self, startTime) - 7) + 10
-        x2 = 90 * (calender.start(self, endTime) - 7) + 10
+        self.ST = startTime
+        self.ET = endTime
+        self.name = name
+        x1 = 90 * (calender.start(self, startTime) - 7)
+        x2 = 90 * (calender.start(self, endTime) - 7)
         y = 60
         y2 = 140
-        a = (x2 - x1) / 8
-        # if a < 5:
-        #     name=""
-        self.bu = Button(text=name, font="Times 10", height=4, width=int(a), relief="groove", bg="lightblue",
-                         command=edit)
-        windowID = self.ID.create_window((x1 + x2) / 2, 100, window=self.bu)
-        # self.ID.create_rectangle(x1, y, x2, y2, fill="blue")
+
+        self.bu = Button(text=name, font="Times 10", relief="groove", bg="lightblue",
+                         command=lambda:edit(c))
+        windowID = self.ID.create_window(x1, 100, window=self.bu, anchor=W, height=80,width=x2-x1)
+        self.ID.create_rectangle(x1, y, x2, y2, fill="blue")
 
         # self.ID.create_text((x1+x2)/2, 100, text=name)
 
 
-def edit():
+def edit(calenderOBJ):
+    Startminutes = int(calenderOBJ.ST[(calenderOBJ.ST.find(":") + 1):])
+    Starthour = int(calenderOBJ.ST[:calenderOBJ.ST.find(":")])
+
+    Endminutes = int(calenderOBJ.ET[(calenderOBJ.ET.find(":") + 1):])
+    Endhour = int(calenderOBJ.ET[:calenderOBJ.ET.find(":")])
+
     Label(editFrame, text="Name").pack()
     Name = Entry(editFrame)
     Name.pack()
@@ -49,26 +56,26 @@ def edit():
     Time = Frame(editFrame)
     vsth = IntVar()
     optStH = OptionMenu(Time, vsth, *Hours)
-    vsth.set(7)
+    vsth.set(Starthour)
+
     optStH.pack(side=LEFT)
-    Label(Time,text=":").pack(side=LEFT)
+    Label(Time, text=":").pack(side=LEFT)
     vstm = IntVar()
-    optStM = OptionMenu(Time, vstm, *[str(i) for i in range(00, 60,5)])
-    vstm.set(15)
+    optStM = OptionMenu(Time, vstm, *[str(i) for i in range(00, 60, 5)])
+    vstm.set(Startminutes)
     optStM.pack(side=LEFT)
     Time.pack()
-
 
     Label(editFrame, text="Time End").pack()
     Time2 = Frame(editFrame)
     vEh = IntVar()
     optStH = OptionMenu(Time2, vEh, *Hours)
-    vsth.set(7)
+    vEh.set(Endhour)
     optStH.pack(side=LEFT)
-    Label(Time2,text=":").pack(side=LEFT)
+    Label(Time2, text=":").pack(side=LEFT)
     vEm = IntVar()
-    optEM = OptionMenu(Time2, vEm, *[str(i) for i in range(00, 60,5)])
-    vstm.set(15)
+    optEM = OptionMenu(Time2, vEm, *[str(i) for i in range(00, 60, 5)])
+    vEm.set(Endminutes)
     optEM.pack(side=LEFT)
     Time2.pack()
 
@@ -87,7 +94,7 @@ window.add(editFrame)
 
 c = calender(calenderFrame)
 c.make_grid()
-c.add_appt("9:30", "10:10", "Leon \nFattakhov", "superCool")
-c.add_appt("10:15", "11:50", "Advait \nFattakhov", "superCool")
+c.add_appt("9:00", "9:30", "Leon \nFattakhov", "superCool")
+c.add_appt("10:00", "11:00", "Advait \nFattakhov", "superCool")
 c.add_appt("12:30", "12:45", "Nim \nFattakhov", "superCool")
 root.mainloop()
