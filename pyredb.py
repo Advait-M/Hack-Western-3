@@ -19,7 +19,7 @@ class WaitNoMore:
     def start(self):
         self.stream = self.db.stream(self.streamHandler)
         self.addSession("Jeffy", "Guffy", "2:00", "4:00", "Waterloo")
-        #self.editSession()
+        self.editSession("Nim", "Feteov", "15:00", "18:00", "Toronto")
         #self.getAll()
         # times = {"Start Time" : "01:00", "End Time" : "03:00"}
         # self.db.child("Bob Fred").set(times)
@@ -29,7 +29,7 @@ class WaitNoMore:
     def addSession(self, firstName, lastName, startTime, endTime, location):
         self.db.child(firstName + " " + lastName).set({"Start Time" : startTime, "End Time" : endTime, "Location" : location})
 
-    def editSession(self, oldFirstName, oldLastName, newString, typeOfString):
+    def editSession(self, startTime, endTime, name, location):
         if typeOfString == "Start Time" or typeOfString == "End Time":
             self.db.child(oldFirstName + " " + oldLastName).update({typeOfString : newString})
 
