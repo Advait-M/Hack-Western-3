@@ -35,7 +35,8 @@ class calender():
 
         windowID = self.ID.create_window(x1, y1, window=bu, anchor=NW, width=x2 - x1, height=y2-y1)
 
-    def currentWith(self):
+    # def currentWith(self):
+
 
 
 
