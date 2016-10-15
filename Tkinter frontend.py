@@ -1,21 +1,22 @@
 from tkinter import *
+from tkinter import Tk, Entry, END
 
 import math
 
 
 class calender():
     def __init__(self, master):
-        self.ID = Canvas(master, height=200, width=1000)
+        self.ID = Canvas(master, height=700, width=250)
         self.ID.pack()
 
     def make_grid(self):
         x = 10
         y = 20
-        y2 = 200
+        x2 = 200
         for i in range(7, 19):
-            self.ID.create_text(x, 0, text=i, anchor=N)
-            self.ID.create_line(x, y, x, y2)
-            x += 85
+            self.ID.create_text(210, y, text=i)
+            self.ID.create_line(x, y, x2, y)
+            y += 50
 
     def start(self, st):
         minutes = int(st[(st.find(":") + 1):])
@@ -27,20 +28,34 @@ class calender():
         self.ST = startTime
         self.ET = endTime
         self.name = name
-        x1 = 90 * (calender.start(self, startTime) - 7)
-        x2 = 90 * (calender.start(self, endTime) - 7)
-        y = 60
-        y2 = 140
+        y1 = 50 * (calender.start(self, startTime) - 7) + 10
+        y2 = 50 * (calender.start(self, endTime) - 7) + 10
+        x1 = 5
+        x2 = 200
 
         self.bu = Button(text=name, font="Times 10", relief="groove", bg="lightblue",
-                         command=lambda:edit(c))
-        windowID = self.ID.create_window(x1, 100, window=self.bu, anchor=W, height=80,width=x2-x1)
-        self.ID.create_rectangle(x1, y, x2, y2, fill="blue")
+                         command=lambda: edit(c))
+        windowID = self.ID.create_window(x1, y1, window=self.bu, anchor=W, width=x2 - x1, height=50)
 
-        # self.ID.create_text((x1+x2)/2, 100, text=name)
+
+def callbackFirst(event):
+    global clickedFirst, firstName
+    if (clickedFirst == False):
+        firstName.delete(0, END)
+        firstName.config(fg="black")
+        clickedFirst = True
+
+
+def callbackLast(event):
+    global clickedLast, lastName
+    if (clickedLast == False):
+        lastName.delete(0, END)
+        lastName.config(fg="black")
+        clickedLast = True
 
 
 def edit(calenderOBJ):
+    global clickedFirst, firstName, clickedLast, lastName
     Startminutes = int(calenderOBJ.ST[(calenderOBJ.ST.find(":") + 1):])
     Starthour = int(calenderOBJ.ST[:calenderOBJ.ST.find(":")])
 
@@ -48,40 +63,66 @@ def edit(calenderOBJ):
     Endhour = int(calenderOBJ.ET[:calenderOBJ.ET.find(":")])
 
     Label(editFrame, text="Name").pack()
-    Name = Entry(editFrame)
-    Name.pack()
-    Hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+    firstName = Entry(editFrame, fg="grey", exportselection=0)
+    clickedFirst = False
+    firstName.bind("<FocusIn>", callbackFirst)
+    firstName.insert(0, "First Name")
+    firstName.pack()
+    lastName = Entry(editFrame, fg="grey", exportselection=0)
+    clickedLast = False
+    lastName.bind("<FocusIn>", callbackLast)
 
+    lastName.insert(0, "Last Name")
+    lastName.pack()
+    allHours = [str(item).zfill(2) for item in list(range(7, 19))]
+    allMinutes = [str(item).zfill(2) for item in list(range(0, 60, 5))]
     Label(editFrame, text="Time").pack()
     Time = Frame(editFrame)
-    vsth = IntVar()
-    optStH = OptionMenu(Time, vsth, *Hours)
+    vsth = StringVar()
+    optStH = OptionMenu(Time, vsth, *allHours)
     vsth.set(Starthour)
 
     optStH.pack(side=LEFT)
     Label(Time, text=":").pack(side=LEFT)
-    vstm = IntVar()
-    optStM = OptionMenu(Time, vstm, *[str(i) for i in range(00, 60, 5)])
+    vstm = StringVar()
+    optStM = OptionMenu(Time, vstm, *allMinutes)
     vstm.set(Startminutes)
     optStM.pack(side=LEFT)
     Time.pack()
 
     Label(editFrame, text="Time End").pack()
     Time2 = Frame(editFrame)
-    vEh = IntVar()
-    optStH = OptionMenu(Time2, vEh, *Hours)
+    vEh = StringVar()
+    optStH = OptionMenu(Time2, vEh, *allHours)
     vEh.set(Endhour)
     optStH.pack(side=LEFT)
     Label(Time2, text=":").pack(side=LEFT)
-    vEm = IntVar()
-    optEM = OptionMenu(Time2, vEm, *[str(i) for i in range(00, 60, 5)])
+    vEm = StringVar()
+    optEM = OptionMenu(Time2, vEm, *allMinutes)
     vEm.set(Endminutes)
     optEM.pack(side=LEFT)
     Time2.pack()
+    Button(editFrame, text="submit", command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm)).pack()
+
+
+def formatTime(time):
+    timesList = time.split(":")
+    hours = timesList[0].zfill(2)
+    minutes = timesList[1].zfill(2)
+    formattedTime = hours + ":" + minutes
+    return formattedTime
+
+
+def submitEdit(firstName, lastName, stH, stM, etH, etM):
+    fn = firstName.get()
+    ln = lastName.get()
+    startTime = stH.get() + ":" + stM.get()
+    endTime = etH.get() + ":" + etM.get()
+    print(fn, ln, startTime, endTime)
 
 
 root = Tk()
-window = PanedWindow(root, height=650, width=1000, orient=VERTICAL)
+window = PanedWindow(root, height=650, width=800, orient=HORIZONTAL)
 window.pack(fill=BOTH, expand=1)
 
 calenderFrame = Frame(window)
@@ -89,12 +130,12 @@ calenderFrame.pack()
 window.add(calenderFrame)
 
 editFrame = Frame(window)
-editFrame.pack()
+editFrame.pack(side=RIGHT)
 window.add(editFrame)
 
 c = calender(calenderFrame)
 c.make_grid()
-c.add_appt("9:00", "9:30", "Leon \nFattakhov", "superCool")
-c.add_appt("10:00", "11:00", "Advait \nFattakhov", "superCool")
-c.add_appt("12:30", "12:45", "Nim \nFattakhov", "superCool")
+c.add_appt("9:00", "9:30", "Leon Fattakhov", "superCool")
+c.add_appt("10:00", "11:00", "Advait Fattakhov", "superCool")
+c.add_appt("12:30", "12:45", "Nim Fattakhov", "superCool")
 root.mainloop()
