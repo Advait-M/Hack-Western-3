@@ -18,18 +18,18 @@ class WaitNoMore:
 
     def start(self):
         self.stream = self.db.stream(self.streamHandler)
-        self.addSession("Jeffy", "Guffy", "2:00", "4:00", "Waterloo")
-        self.editSession("Nim", "Feteov", "15:00", "18:00", "Toronto")
+        self.addSession("Jeffy", "Guffy", "2:00", "4:00", "Waterloo", "WingWong Clinic of Kong")
+        #self.editSession("Nim", "Feteov", "15:00", "18:00", "Toronto", "KingKong Clinic of Wong")
         #self.getAll()
         # times = {"Start Time" : "01:00", "End Time" : "03:00"}
         # self.db.child("Bob Fred").set(times)
         ##endTime = {"End Time": "8:00"}
         ##self.db.child("Bob Fred").set(endTime)
         
-    def addSession(self, firstName, lastName, startTime, endTime, location):
-        self.db.child(firstName + " " + lastName).set({"Start Time" : startTime, "End Time" : endTime, "Location" : location})
+    def addSession(self, firstName, lastName, startTime, endTime, location, clinicName):
+        self.db.child(firstName + " " + lastName).set({"Start Time" : startTime, "End Time" : endTime, "Location" : location, "Clinic Name" : clinicName})
 
-    def editSession(self, startTime, endTime, name, location):
+    def editSession(self, startTime, endTime, name, location, clinicName):
         if typeOfString == "Start Time" or typeOfString == "End Time":
             self.db.child(oldFirstName + " " + oldLastName).update({typeOfString : newString})
 
@@ -45,7 +45,9 @@ class WaitNoMore:
             startTime = (user.val())["Start Time"]
             endTime = (user.val())["End Time"]
             location = (user.val())["Location"]
-            masterList.append([startTime, endTime, name, location])
+            clinicNamei = (user.val())["Clinic Name"]
+            masterList.append([startTime, endTime, name, location, clinicNamei])
+        print(masterList)
         return masterList
 
     def streamHandler(self, post):
@@ -56,6 +58,6 @@ class WaitNoMore:
         if event == "put":
             print(key, ":", value)
 
-WaitNoMore().start()
-WaitNoMore().getAll()
-print("a")
+if __name__ == "__main__":
+    WaitNoMore().start()
+    WaitNoMore().getAll()
