@@ -1,0 +1,32 @@
+<body>
+<div class="wrapper">
+  <div class="box a">
+	  <table style="width: 100%" border = "1">
+		  <tr>
+			  <td>{{firstName}} {{lastName}}</td>
+			  <td>Name 2</td>
+			  <td>Name 3</td>
+			  <td>Name 4</td>
+		  </tr>
+		  <tr>
+			  <td>Info 1</td>
+			  <td>Info 2</td>
+			  <td>Info 3</td>
+			  <td>Info 4</td>
+		  </tr>
+		  </table>
+	</div>
+</div>
+<p>&nbsp;</p>
+<p class="auto-style1">Available Time Slots</p>
+<table style="width: 100%">
+	<tr>
+		<td>Available Time 1</td>
+		<td>Avaialble TIme 2</td>
+		<td>Avaialble TIme 3</td>
+		<td>Avaialble TIme 4</td>
+	</tr>
+</table>
+<br>
+<script src='https://maps.googleapis.com/maps/api/js?v=3.exp'></script><div style='overflow:hidden;height:440px;width:700px;'><div id='gmap_canvas' style='height:440px;width:700px;'></div><div><small><a href="http://embedgooglemaps.com">embed google maps</a></small></div><div><small><a href="https://privacypolicytemplate.net">privacy policy example</a></small></div><style>#gmap_canvas img{max-width:none!important;background:none!important}</style></div><script type='text/javascript'>function init_map(){var myOptions = {zoom:10,center:new google.maps.LatLng(43.5505342,-79.75256890000003),mapTypeId: google.maps.MapTypeId.ROADMAP};map = new google.maps.Map(document.getElementById('gmap_canvas'), myOptions);marker = new google.maps.Marker({map: map,position: new google.maps.LatLng(43.5505342,-79.75256890000003)});infowindow = new google.maps.InfoWindow({content:'<strong>Home</strong><br>3848 Bloomington Crescent<br>'});google.maps.event.addListener(marker, 'click', function(){infowindow.open(map,marker);});infowindow.open(map,marker);}google.maps.event.addDomListener(window, 'load', init_map);</script>
+</body>
