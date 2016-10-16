@@ -56,7 +56,7 @@ def check():
         from tkinter import Tk, Entry, Label, Button, W
 
         def send():
-            global clinicName
+            global clinicName, locationNAME
             clinicName = lEntry.get()
             locationNAME = cEntry.get()
             if locationNAME == " " or clinicName == " ":
@@ -168,11 +168,15 @@ def edit(name, real):
     Button(editFrame, text="Submit", font="Times 16",
            command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm, ind)).pack()
     Button(editFrame, text="Cancel", font="Times 16", command=cancel).pack()
+    # checkAppointment()
 
 
 def cancel():
     addPatient.config(state="normal")
     editFrame.destroy()
+
+# def checkAppointment():
+
 
 
 def formatTime(time):
@@ -190,16 +194,21 @@ def submitEdit(firstName, lastName, stH, stM, etH, etM, ind):
     if fn != "First Name" and ln != "Last Name":
         startTime = stH.get() + ":" + stM.get()
         endTime = etH.get() + ":" + etM.get()
-        apptO[ind] = [startTime, endTime, fn + " " + ln, apptO[ind][3], locationNAME, clinicName]
+        apptO[ind] = [startTime, endTime, fn + " " + ln, locationNAME, clinicName]
+        pyredb.WaitNoMore().editSession(startTime, endTime, fn+" "+ln, apptO[ind][3], locationNAME, clinicName)
         editFrame.destroy()
         addPatient.config(state="normal")
         print(apptO)
         fullUpdate()
 
 
+
 def pullDB():
     global apptO
     apptO = pyredb.WaitNoMore().getAll()
+    for i in range(len(apptO)-1,-1,-1,):
+       if apptO[i][4]!=clinicName:
+            del apptO[i]
     fullUpdate()
 
 
