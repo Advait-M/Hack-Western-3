@@ -2,18 +2,21 @@
 <div class="wrapper">
   <div class="box a">
 	  <table style="width: 100%" border = "1">
+
 		  <tr>
-			  <td>{{firstName}} {{lastName}}</td>
-			  <td>Name 2</td>
-			  <td>Name 3</td>
-			  <td>Name 4</td>
+			  <th>Clinic Name</th>
+			  <th>Start Time</th>
+			  <th>End Time</th>
+			  <th>Location</th>
 		  </tr>
-		  <tr>
-			  <td>Info 1</td>
-			  <td>Info 2</td>
-			  <td>Info 3</td>
-			  <td>Info 4</td>
-		  </tr>
+		  {% for name in names %}
+			<tr>
+				<td>{{ name.clinic_name }}</td>
+				<td>{{ name.start_time}}</td>
+				<td>{{ name.end_time}} </td>
+				<td>{{ name.end_time}}</td>
+			</tr>
+		  {% endfor %}
 		  </table>
 	</div>
 </div>
