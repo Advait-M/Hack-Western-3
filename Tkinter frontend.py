@@ -228,6 +228,7 @@ def add():
 check()
 
 root = Tk()
+root.iconbitmap("icon.ico")
 root.title(clinicName)
 window = PanedWindow(root, height=650, width=800, orient=HORIZONTAL)
 window.pack(fill=BOTH, expand=1)
