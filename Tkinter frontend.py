@@ -14,11 +14,12 @@ class calender():
         self.ID.pack()
 
     def make_grid(self):
+        self.ID.create_text(100,0,anchor=N,text="Calender")
         x = 10
         y = 20
         x2 = 200
         for i in range(7, 19):
-            self.ID.create_text(210, y, text=i)
+            self.ID.create_text(210, y, text=str(i).zfill(2))
             self.ID.create_line(x, y, x2, y)
             y += 50
 
@@ -30,7 +31,7 @@ class calender():
         return hour + minutes
 
     def add_appt(self, startTime, endTime, name, locationNAME, clinicName):
-        bu = Button(text=name, relief="groove", font="Times 14",bg="lightblue",command=lambda: edit(name, True))
+        bu = Button(text=name, relief="groove", font="Times 14", bg="lightblue", command=lambda: edit(name, True))
         apptO.append([startTime, endTime, name, locationNAME, clinicName])
         y1 = 50 * (calender.start(self, name, 0) - 7) + 20
         y2 = 50 * (calender.start(self, name, 1) - 7) + 20
@@ -45,24 +46,23 @@ class calender():
 def check():
     global clinicName, locationNAME
     file = open("start.txt", 'r+')
-    clinicName = file.readline()
+    clinicName = file.readline().strip()
     locationNAME = file.readline()
 
     if len(locationNAME) > 0 and len(clinicName) > 0:
-        clinicName = clinicName
+        pass
 
     else:
         from tkinter import Tk, Entry, Label, Button, W
 
         def send():
             global clinicName
-            clinic = lEntry.get()
+            clinicName = lEntry.get()
             locationNAME = cEntry.get()
-            clinicName = clinic
-            if locationNAME == " " or clinic == " ":
+            if locationNAME == " " or clinicName == " ":
                 pass
             else:
-                file.write(clinic + '\n' + locationNAME)
+                file.write(clinicName + '\n' + locationNAME)
                 popupWindow.destroy()
                 file.close()
 
@@ -71,12 +71,12 @@ def check():
 
         popupWindow = Tk()
         Label(popupWindow, text="Clinic Name").grid(row=1, column=1, sticky=W)
-        cEntry = Entry(popupWindow , font="Times 16")
+        cEntry = Entry(popupWindow, font="Times 16")
         cEntry.grid(row=2, column=2, sticky=W)
         Label(popupWindow, text="Address").grid(row=2, column=1, sticky=W)
         lEntry = Entry(popupWindow, font="Times 16")
         lEntry.grid(row=1, column=2, sticky=W)
-        Button(popupWindow, text="Submit",font="Times 16", command=send).grid(row=3, column=1, sticky=W)
+        Button(popupWindow, text="Submit", font="Times 16", command=send).grid(row=3, column=1, sticky=W)
 
         popupWindow.bind("<Return>", KeyDownHandler)
         popupWindow.wm_protocol("WM_DELETE_WINDOW", lambda: None)
@@ -165,7 +165,14 @@ def edit(name, real):
     vEm.set(Endminutes)
     optEM.pack(side=LEFT)
     Time2.pack()
-    Button(editFrame, text="Submit",font="Times 16", command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm, ind)).pack()
+    Button(editFrame, text="Submit", font="Times 16",
+           command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm, ind)).pack()
+    Button(editFrame, text="Cancel", font="Times 16", command=cancel).pack()
+
+
+def cancel():
+    addPatient.config(state="normal")
+    editFrame.destroy()
 
 
 def formatTime(time):
@@ -180,13 +187,14 @@ def submitEdit(firstName, lastName, stH, stM, etH, etM, ind):
     global clinicName, locationNAME
     fn = firstName.get()
     ln = lastName.get()
-    startTime = stH.get() + ":" + stM.get()
-    endTime = etH.get() + ":" + etM.get()
-    apptO[ind] = [startTime, endTime, fn + " " + ln, apptO[ind][3], locationNAME, clinicName]
-    editFrame.destroy()
-    g.config(state="normal")
-    print(apptO)
-    fullUpdate()
+    if fn != "First Name" and ln != "Last Name":
+        startTime = stH.get() + ":" + stM.get()
+        endTime = etH.get() + ":" + etM.get()
+        apptO[ind] = [startTime, endTime, fn + " " + ln, apptO[ind][3], locationNAME, clinicName]
+        editFrame.destroy()
+        addPatient.config(state="normal")
+        print(apptO)
+        fullUpdate()
 
 
 def pullDB():
@@ -194,14 +202,13 @@ def pullDB():
     apptO = pyredb.WaitNoMore().getAll()
     fullUpdate()
 
+
 def fullUpdate():
     global c
     c.ID.delete(ALL)
     c.make_grid()
     for i in range(len(apptO) - 1, -1, -1):
-        startTime, endTime, name, address, cName = apptO[i][0], apptO[i][1], apptO[i][2], apptO[i][3], apptO[i][4]
-        c.add_appt(startTime, endTime, name, address, cName)
-        # for j  in range(len(apptO)-1, -1, -1):
+        c.add_appt(apptO[i][0], apptO[i][1], apptO[i][2], locationNAME, clinicName)
         del apptO[i]
 
 
@@ -209,7 +216,7 @@ def add():
     apptO.append(["07:00", "08:00", "First Name Last Name", locationNAME,
                   clinicName])  # appends defaults for editing thus creating a new session
     edit("First Name Last Name", False)
-    g.config(state="disabled")
+    addPatient.config(state="disabled")
 
 
 check()
@@ -229,8 +236,9 @@ window.add(editMainFrame)
 editFrame = Frame(editMainFrame)
 editFrame.pack(side=BOTTOM)
 
+
 def saveNotes():
-    f = asksaveasfile(mode='w+', defaultextension=".txt",filetypes=[('Note', '.txt')])
+    f = asksaveasfile(mode='w+', defaultextension=".txt", filetypes=[('Note', '.txt')])
     if f is None:  # asksaveasfile return `None` if dialog closed with "cancel".
         return
     text2save = str(notes.get(1.0, END))  # starts from `1.0`, not `0.0`
@@ -238,26 +246,22 @@ def saveNotes():
     f.close()
 
 
+addPatient = Button(editMainFrame, text="\u271A Add Patient", font="Times 16", command=add)
+addPatient.pack(side=TOP, fill=BOTH)
 
 
-
-g = Button(editMainFrame, text="\u271A Add Patient", font="Times 16", command=add)
-g.pack(side=TOP, fill=BOTH)
 def reDraw():
     global notes
-    notes= Text(editMainFrame, height=10)
+    notes = Text(editMainFrame, height=10)
     Button(editMainFrame, text="Save Note", command=saveNotes).pack(side=BOTTOM)
     notes.pack(side=BOTTOM, fill=X)
-    Label(editMainFrame, text="Notes", font = "Times 16").pack(side=BOTTOM)
+    Label(editMainFrame, text="Notes", font="Times 16").pack(side=BOTTOM)
+
 
 reDraw()
-
 
 c = calender(calenderFrame)
 c.make_grid()
 
-# c.add_appt("9:00", "10:00", "Leon Fattakhov", "234 King Street East Waterloo On", "WingWong Clinc of Kong")
-# c.add_appt("10:00", "11:00", "Advait Fattakhov", "390 Cavendish Dr Waterloo On", "Clinic Of Death")
-# c.add_appt("12:30", "12:45", "Nim Fattakhov", "235 King Street East Waterloo On", "KingKong Clinc of Wong")
 pullDB()
 root.mainloop()
