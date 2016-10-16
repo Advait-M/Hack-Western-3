@@ -29,7 +29,7 @@ class calender():
         return hour + minutes
 
     def add_appt(self, startTime, endTime, name, location, clinicName):
-        bu = Button(text=name, relief="groove", font="Times 14",bg="lightyellow",command=lambda: edit(name))
+        bu = Button(text=name, relief="groove", font="Times 14",bg="lightblue",command=lambda: edit(name))
         apptO.append([startTime, endTime, name, location, clinicName])
         y1 = 50 * (calender.start(self, name, 0) - 7) + 20
         y2 = 50 * (calender.start(self, name, 1) - 7) + 20
@@ -234,9 +234,9 @@ g.pack(side=TOP, fill=BOTH)
 def reDraw():
     global notes
     notes= Text(editMainFrame, height=10)
+    Button(editMainFrame, text="Save Note", command=saveNotes).pack(side=BOTTOM)
     notes.pack(side=BOTTOM, fill=X)
     Label(editMainFrame, text="Notes", font = "Times 16").pack(side=BOTTOM)
-    Button(editMainFrame, text="Save Note", command=saveNotes).pack(side=BOTTOM)
 
 reDraw()
 
