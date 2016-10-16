@@ -2,8 +2,9 @@ from time import strftime
 from tkinter import *
 from tkinter import Tk, Entry, END
 from tkinter.filedialog import asksaveasfile
+import pyredb
 
-# start time , end time, name , location
+# start time , end time, name , location, clinic name
 apptO = []
 
 
@@ -28,40 +29,40 @@ class calender():
         minutes /= 60
         return hour + minutes
 
-    def add_appt(self, startTime, endTime, name, location, clinicName):
-        bu = Button(text=name, relief="groove", font="Times 14",bg="lightblue",command=lambda: edit(name))
-        apptO.append([startTime, endTime, name, location, clinicName])
+    def add_appt(self, startTime, endTime, name, locationNAME, clinicName):
+        bu = Button(text=name, relief="groove", font="Times 14",bg="lightblue",command=lambda: edit(name, True))
+        apptO.append([startTime, endTime, name, locationNAME, clinicName])
         y1 = 50 * (calender.start(self, name, 0) - 7) + 20
         y2 = 50 * (calender.start(self, name, 1) - 7) + 20
         x1 = 5
         x2 = 200
-
+        pyredb.WaitNoMore().addSession(startTime, endTime, name, locationNAME, clinicName)
         windowID = self.ID.create_window(x1, y1, window=bu, anchor=NW, width=x2 - x1, height=y2 - y1)
 
         # def currentWith(self):
 
 
 def check():
-    global ClinicNAME
+    global clinicName, locationNAME
     file = open("start.txt", 'r+')
     clinicName = file.readline()
-    address = file.readline()
+    locationNAME = file.readline()
 
-    if len(address) > 0 and len(clinicName) > 0:
-        ClinicNAME = clinicName
+    if len(locationNAME) > 0 and len(clinicName) > 0:
+        clinicName = clinicName
 
     else:
         from tkinter import Tk, Entry, Label, Button, W
 
         def send():
-            global ClinicNAME
+            global clinicName
             clinic = lEntry.get()
-            location = cEntry.get()
-            ClinicNAME = clinic
-            if location == " " or clinic == " ":
+            locationNAME = cEntry.get()
+            clinicName = clinic
+            if locationNAME == " " or clinic == " ":
                 pass
             else:
-                file.write(clinic + '\n' + location)
+                file.write(clinic + '\n' + locationNAME)
                 popupWindow.destroy()
                 file.close()
 
@@ -104,9 +105,8 @@ def elementFind(name, i=2):
         return temp.index(name)
 
 
-def edit(name):
-    global editFrame
-    global clickedFirst, firstName, clickedLast, lastName
+def edit(name, real):
+    global editFrame, clickedFirst, firstName, clickedLast, lastName
     editFrame.destroy()
     editFrame = Frame(editMainFrame)
     editFrame.pack()
@@ -116,20 +116,26 @@ def edit(name):
 
     Endminutes = apptO[ind][1][apptO[ind][1].find(":") + 1:].zfill(2)
     Endhour = apptO[ind][1][:apptO[ind][1].find(":")].zfill(2)
-    name = apptO[ind][2].split(" ")
+    if real:
+        name = apptO[ind][2].split(" ")
     print(name)
 
     Label(editFrame, text="Name").pack()
     firstName = Entry(editFrame, font="Times 16", fg="grey", exportselection=0)
     clickedFirst = False
     firstName.bind("<FocusIn>", callbackFirst)
-    firstName.insert(0, name[0])  # "First Name")
+    if not real:
+        firstName.insert(0, "First Name")
+    else:
+        firstName.insert(0, name[0])
     firstName.pack()
     lastName = Entry(editFrame, font="Times 16", fg="grey", exportselection=0)
     clickedLast = False
     lastName.bind("<FocusIn>", callbackLast)
-
-    lastName.insert(0, name[1])  # "Last Name")
+    if not real:
+        lastName.insert(0, "Last Name")
+    else:
+        lastName.insert(0, name[1])  # "Last Name")
     lastName.pack()
     allHours = [str(item).zfill(2) for item in list(range(7, 19))]
     allMinutes = [str(item).zfill(2) for item in list(range(0, 60, 5))]
@@ -171,16 +177,22 @@ def formatTime(time):
 
 
 def submitEdit(firstName, lastName, stH, stM, etH, etM, ind):
+    global clinicName, locationNAME
     fn = firstName.get()
     ln = lastName.get()
     startTime = stH.get() + ":" + stM.get()
     endTime = etH.get() + ":" + etM.get()
-    apptO[ind] = [startTime, endTime, fn + " " + ln, apptO[ind][3], "ClinicA", "Clinic"]
+    apptO[ind] = [startTime, endTime, fn + " " + ln, apptO[ind][3], locationNAME, clinicName]
     editFrame.destroy()
     g.config(state="normal")
     print(apptO)
     fullUpdate()
 
+
+def pullDB():
+    global apptO
+    apptO = pyredb.WaitNoMore().getAll()
+    fullUpdate()
 
 def fullUpdate():
     global c
@@ -194,16 +206,16 @@ def fullUpdate():
 
 
 def add():
-    apptO.append(["07:00", "08:00", "FirstName LastName", "123 weber st north waterloo on",
-                  "GetBetterEveryDay"])  # appends defaults for editing thus creating a new session
-    edit("FirstName LastName")
+    apptO.append(["07:00", "08:00", "First Name Last Name", locationNAME,
+                  clinicName])  # appends defaults for editing thus creating a new session
+    edit("First Name Last Name", False)
     g.config(state="disabled")
 
 
 check()
 
 root = Tk()
-root.title(ClinicNAME)
+root.title(clinicName)
 window = PanedWindow(root, height=650, width=800, orient=HORIZONTAL)
 window.pack(fill=BOTH, expand=1)
 
@@ -247,5 +259,5 @@ c.make_grid()
 # c.add_appt("9:00", "10:00", "Leon Fattakhov", "234 King Street East Waterloo On", "WingWong Clinc of Kong")
 # c.add_appt("10:00", "11:00", "Advait Fattakhov", "390 Cavendish Dr Waterloo On", "Clinic Of Death")
 # c.add_appt("12:30", "12:45", "Nim Fattakhov", "235 King Street East Waterloo On", "KingKong Clinc of Wong")
-
+pullDB()
 root.mainloop()
