@@ -18,28 +18,16 @@ class WaitNoMore:
 
     def start(self):
         self.stream = self.db.stream(self.streamHandler)
-        self.addSession("Jeffy Guffy", "2:00", "4:00", "Waterloo", "Medicare")
-        self.addSession("Ert Geh", "4:00", "9:00", "Yeth", "Medicare")
-        self.addSession("Bob Hiw", "1:00", "7:00", "Toronto", "Health Plus")
-        #self.editSession("Nim", "Feteov", "15:00", "18:00", "Toronto", "med")
-        #self.getAll()
-        # times = {"Start Time" : "01:00", "End Time" : "03:00"}
-        # self.db.child("Bob Fred").set(times)
-        ##endTime = {"End Time": "8:00"}
-        ##self.db.child("Bob Fred").set(endTime)
         
     def addSession(self, startTime, endTime, name, location, clinicName):
         self.db.child(name).set({"Start Time" : startTime, "End Time" : endTime, "Location" : location, "Clinic Name" : clinicName})
 
-    def editSession(self, startTime, endTime, name, location, clinicName):
-        if typeOfString == "Start Time" or typeOfString == "End Time":
-            self.db.child(oldFirstName + " " + oldLastName).update({typeOfString : newString})
+    def editSession(self, startTime, endTime, oldname, name, location, clinicName):
+        self.db.child(oldname).remove()
+        self.db.child(name).set({"Start Time": startTime, "End Time": endTime, "Location": location, "Clinic Name": clinicName})
+
 
     def getAll(self):
-        # print((self.db.child("wait-no-more").get()).each())
-        # print(type(self.db))
-        # print((self.db.child("/").get()).each())
-        # for i in range(0, len(self.db)):
         all_users = self.db.child("/").get()
         masterList = []
         for user in all_users.each():
@@ -49,7 +37,6 @@ class WaitNoMore:
             location = (user.val())["Location"]
             clinicName = (user.val())["Clinic Name"]
             masterList.append([startTime, endTime, name, location, clinicName])
-        print(masterList)
         return masterList
 
     def streamHandler(self, post):

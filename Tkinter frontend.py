@@ -40,8 +40,6 @@ class calender():
         pyredb.WaitNoMore().addSession(startTime, endTime, name, locationNAME, clinicName)
         windowID = self.ID.create_window(x1, y1, window=bu, anchor=NW, width=x2 - x1, height=y2 - y1)
 
-        # def currentWith(self):
-
 
 def check():
     global clinicName, locationNAME
@@ -111,6 +109,7 @@ def edit(name, real):
     editFrame = Frame(editMainFrame)
     editFrame.pack()
     ind = elementFind(name)
+    oldName = name
     Startminutes = apptO[ind][0][apptO[ind][0].find(":") + 1:].zfill(2)
     Starthour = apptO[ind][0][:apptO[ind][0].find(":")]
 
@@ -118,7 +117,6 @@ def edit(name, real):
     Endhour = apptO[ind][1][:apptO[ind][1].find(":")].zfill(2)
     if real:
         name = apptO[ind][2].split(" ")
-    print(name)
 
     Label(editFrame, text="Name").pack()
     firstName = Entry(editFrame, font="Times 16", fg="grey", exportselection=0)
@@ -166,7 +164,7 @@ def edit(name, real):
     optEM.pack(side=LEFT)
     Time2.pack()
     Button(editFrame, text="Submit", font="Times 16",
-           command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm, ind)).pack()
+           command=lambda: submitEdit(firstName, lastName, vsth, vstm, vEh, vEm, ind, oldName)).pack()
     Button(editFrame, text="Cancel", font="Times 16", command=cancel).pack()
     # checkAppointment()
 
@@ -187,7 +185,7 @@ def formatTime(time):
     return formattedTime
 
 
-def submitEdit(firstName, lastName, stH, stM, etH, etM, ind):
+def submitEdit(firstName, lastName, stH, stM, etH, etM, ind, oldName):
     global clinicName, locationNAME
     fn = firstName.get()
     ln = lastName.get()
@@ -195,11 +193,10 @@ def submitEdit(firstName, lastName, stH, stM, etH, etM, ind):
         startTime = stH.get() + ":" + stM.get()
         endTime = etH.get() + ":" + etM.get()
         apptO[ind] = [startTime, endTime, fn + " " + ln, locationNAME, clinicName]
-        pyredb.WaitNoMore().editSession(startTime, endTime, fn+" "+ln, apptO[ind][3], locationNAME, clinicName)
         editFrame.destroy()
         addPatient.config(state="normal")
-        print(apptO)
         fullUpdate()
+        pyredb.WaitNoMore().editSession(startTime, endTime, oldName, fn + " " + ln, locationNAME, clinicName)
 
 
 
